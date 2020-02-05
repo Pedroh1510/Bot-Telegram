@@ -1,16 +1,24 @@
-from credential.telegram import key
-import logging
+from credential.telegram import key as telegramKey
+from credential.mongoDb import key as mongoDbKey
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
+from pymongo import MongoClient
 import json
+import logging
 
-def bot(filepath):
+def bot():
+
+    client = MongoClient(mongoDbKey)
+    mydb = client['videmaker']
+    db = mydb['themes']
+
     logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=key)
+    bot = Bot(token=telegramKey)
     dp = Dispatcher(bot)
 
     content={
-        'theme': ''
+        'theme': '',
+        'ready': 0
     }
 
     @dp.message_handler(commands=['help'])
@@ -24,8 +32,7 @@ def bot(filepath):
             removeTheme = message.text.split()[1:]
             theme = ' '.join(removeTheme)
             content['theme'] = theme
-            with open(filepath, 'w', encoding='utf-8') as save:
-                json.dump(content,save)
+            db.insert_one(content)
             theme = f'Seu tema é {theme}'
         except TypeError:
             theme = "Erro"
@@ -36,4 +43,4 @@ def bot(filepath):
     executor.start_polling(dp, skip_updates=True)
 
 if __name__ == "__main__":
-    bot('./theme.json')
+    bot()
