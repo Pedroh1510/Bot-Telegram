@@ -5,6 +5,7 @@ from aiogram.dispatcher.filters import Text
 from pymongo import MongoClient
 import json
 import logging
+import datetime
 
 def bot():
 
@@ -18,6 +19,7 @@ def bot():
 
     content={
         'theme': '',
+        'date': '',
         'ready': 0
     }
 
@@ -32,7 +34,8 @@ def bot():
             removeTheme = message.text.split()[1:]
             theme = ' '.join(removeTheme)
             content['theme'] = theme
-            db.insert_one(content)
+            content['date'] = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            db.update_one({'_id': theme}, {'$set': content}, upsert=True)
             theme = f'Seu tema é {theme}'
         except TypeError:
             theme = "Erro"
