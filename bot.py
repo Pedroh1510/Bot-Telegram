@@ -34,7 +34,7 @@ def bot():
             removeTheme = message.text.split()[1:]
             theme = ' '.join(removeTheme)
             content['theme'] = theme
-            content['date'] = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            content['date'] = datetime.datetime.utcnow()
             db.update_one({'_id': theme}, {'$set': content}, upsert=True)
             theme = f'Seu tema é {theme}'
         except TypeError:
